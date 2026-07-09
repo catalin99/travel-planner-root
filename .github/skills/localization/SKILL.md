@@ -77,9 +77,12 @@ ON t.Code = s.Code
 WHEN MATCHED THEN UPDATE SET t.LocaleRo = s.LocaleRo, t.LocaleEn = s.LocaleEn
 WHEN NOT MATCHED THEN INSERT (Code, LocaleRo, LocaleEn) VALUES (s.Code, s.LocaleRo, s.LocaleEn);
 ```
-Keep seed files under `TravelPlanner/TravelPlannerInfrastructure/Migrations/INSERT_LOCALES_*.sql`
-(the established convention; example: `INSERT_LOCALES_ITINERARY_ACTIVITIES.sql`).
-Escape a literal `'` inside a value by doubling it (`''`); prefer curly `\u2019` in copy to avoid it.
+Put seed files under `TravelPlanner/TravelPlannerInfrastructure/Migrations/INSERT_LOCALES_*.sql`
+(example: `INSERT_LOCALES_ITINERARY_ACTIVITIES.sql`). These generated inserts are
+**gitignored** (backend `.gitignore`: `TravelPlannerInfrastructure/Migrations/INSERT_LOCALES_*.sql`)
+— they are local scratch used to run the insert; **the dynamicconfig DB is the source of
+truth**, so don't commit them. (The older base-set locale SQLs predate this rule and stay
+tracked.) Escape a literal `'` inside a value by doubling it (`''`); prefer curly `\u2019` in copy to avoid it.
 
 ## The workflow (do this whenever there is locale work)
 1. Add the `tf('CODE','English fallback')` calls in the frontend (locale path, no literals).
