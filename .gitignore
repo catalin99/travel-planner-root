@@ -1,0 +1,22 @@
+# =============================================================================
+# travel-planner-root — meta/root repository .gitignore
+# -----------------------------------------------------------------------------
+# The two PRODUCT repos live in their own GitHub repositories and are cloned in
+# via init.ps1. They are intentionally ignored here so this root repo only ever
+# tracks the shared/meta files (.github AI tooling, .vscode, docs, IATA data).
+# =============================================================================
+
+# --- Product repos (own git remotes; reconstruct with init.ps1) ---
+/TravelPlanner/
+/travel-planner-frontend/
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+*.user
+.vs/
+
+# --- Local secrets / env (never commit) ---
+*.env
+.env.*
+appsettings.*.local.json

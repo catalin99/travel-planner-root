@@ -1,0 +1,119 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Backend: API (debug)",
+      "detail": "Run TravelPlannerAPI in Development (https://localhost:7071, Swagger at /swagger).",
+      "type": "shell",
+      "command": "dotnet run --project TravelPlannerAPI --launch-profile https",
+      "options": { "cwd": "${workspaceFolder}/TravelPlanner" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "group": "travelplanner-debug",
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Backend: AI Worker (debug)",
+      "detail": "Run TravelPlannerAiWorker (drains the ai-itinerary-jobs Azure queue).",
+      "type": "shell",
+      "command": "dotnet run --project TravelPlannerAiWorker",
+      "options": {
+        "cwd": "${workspaceFolder}/TravelPlanner",
+        "env": { "DOTNET_ENVIRONMENT": "Development" }
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "group": "travelplanner-debug",
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Frontend: Dev (Vite)",
+      "detail": "Run the React 19 + Vite dev server (http://localhost:5173).",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/travel-planner-frontend" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "group": "travelplanner-debug",
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Start All (debug)",
+      "detail": "Start the API, the AI Worker, and the frontend dev server together.",
+      "dependsOn": [
+        "Backend: API (debug)",
+        "Backend: AI Worker (debug)",
+        "Frontend: Dev (Vite)"
+      ],
+      "dependsOrder": "parallel",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Validate: Backend (build)",
+      "detail": "dotnet build across all cores (-m). Stop the debug stack first (running binaries lock the build output).",
+      "type": "shell",
+      "command": "dotnet build TravelPlanner.sln -m -nologo",
+      "options": { "cwd": "${workspaceFolder}/TravelPlanner" },
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "group": "travelplanner-validate",
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Validate: Frontend (lint)",
+      "detail": "ESLint the frontend.",
+      "type": "shell",
+      "command": "npm run lint",
+      "options": { "cwd": "${workspaceFolder}/travel-planner-frontend" },
+      "problemMatcher": "$eslint-stylish",
+      "presentation": {
+        "group": "travelplanner-validate",
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Validate: Frontend (types)",
+      "detail": "TypeScript project build / type-check (tsc -b).",
+      "type": "shell",
+      "command": "npx tsc -b",
+      "options": { "cwd": "${workspaceFolder}/travel-planner-frontend" },
+      "problemMatcher": "$tsc",
+      "presentation": {
+        "group": "travelplanner-validate",
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Validate All (parallel)",
+      "detail": "Run backend build + frontend lint + frontend type-check concurrently (uses many cores). Stop the debug stack first so the backend build isn't blocked by locked binaries.",
+      "dependsOn": [
+        "Validate: Backend (build)",
+        "Validate: Frontend (lint)",
+        "Validate: Frontend (types)"
+      ],
+      "dependsOrder": "parallel",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    }
+  ]
+}
