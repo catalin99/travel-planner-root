@@ -53,6 +53,25 @@ Design how the product makes money without eroding trust or margin. Pair with
 
 ## Recommended architecture (starting point — validate before shipping)
 
+> **Implemented (payment-free), 2026-07:** the app now ships a working subscription +
+> entitlements system built to this shape (annual billing; see
+> [PRICING_IMPLEMENTATION_PLAN.md](../../../PRICING_IMPLEMENTATION_PLAN.md)).
+> Tiers **Free / Plus / Pro / Ultra** + a per-trip **Trip Pass** (unlocked by booking
+> a flight/stay with us — the margin-aligned flywheel). Catalog =
+> `SubscriptionPlanType` (DynamicConfig, admin-tunable). Per-user state =
+> `UserSubscription` + `TripEntitlement` + `FeatureUsageLog` (main DB). AI generation
+> is gated by a **hierarchical** check (Trip Pass → subscription: generations-per-trip
+> + distinct-trips-per-year) → **HTTP 402** with `{reason, requiredPlan}`; flight
+> suggestions are a soft-gated feature. `AiModelSettings.ResolveModelForUser(planTier,
+> roles)` = max(plan model, role model). Metering counts `FeatureUsageLog` rows by a
+> period key (`SUB:{periodStart}` / `PASS:{id}`), so rolling the period resets
+> allowances (daily `SubscriptionMaintenanceJob`). **Upgrade + booking are simulated**
+> (`POST /api/subscription/change`, `.../trips/{id}/unlock`) — these are the exact
+> single-transition seams a **Stripe (MoR) webhook + real checkout** will later drive
+> with zero rework to the engine/gating/UI. Illustrative annual prices: Plus $15 /
+> Pro $79 / Ultra $179 (display-only). Not yet built: payments, credit top-up packs,
+> denial/wall-hit analytics (usage logs successes only).
+
 | Tier | Price/mo | AI credits | Model | Gated |
 |------|----------|-----------|-------|-------|
 | **Free** | $0 | 3-5 generations | cheap (`gpt-4.1-mini`) | basic itinerary; search via **affiliate links only**; ads |

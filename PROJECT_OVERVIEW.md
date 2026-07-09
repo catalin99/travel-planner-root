@@ -31,17 +31,19 @@ Local debug: API `https://localhost:7071` (`/swagger`), frontend
 | AI flight suggestions | Scores a candidate pool, AI ranks top-N | done |
 | Currency | Multi-currency conversion (Frankfurter rates, cached) | done |
 | Localization | RO/EN locale text, in-memory cache + refresh | done |
-| Admin/Agent | User management, agent trip views, rate-limit admin, dynamic config | done |
+| Pricing & entitlements | Annual tiers (Free/Plus/Pro/Ultra) + per-trip **Trip Pass** (booking-unlock); credit-metered AI generation with hierarchical limits; **simulated** upgrade + booking (no payments yet); `/plans` page, header usage meter, contextual upgrade dialog, admin metrics | done (payment-free) |
+| Guest demo | Anonymous visitors see a zero-cost pre-baked sample AI itinerary (`/demo`) with sign-up / see-plans CTAs | done |
+| Admin/Agent | User management, agent trip views, rate-limit admin, subscription metrics, dynamic config | done |
 | Booking & single-payment package | Confirm + pay a bundled multimodal trip | **planned** |
 | Multimodal inventory | Accommodation, tours, rail, bus, ferry, car | **planned** |
 
 ## Architecture (design)
 - **Backend:** Clean Architecture / modular monolith. Reference direction
   `Domain ← Infrastructure ← Application ← (API | AiWorker)`. Modules: Identity,
-  TravelRequests, ItineraryCalendar, Accommodation, AiGeneration, DynamicConfig,
-  SharedKernel; cross-module reads via `Modules/<Module>/Contracts/`. Unit-of-Work +
-  Repository over EF Core (two DbContexts). Mapster for mapping. Serilog with
-  per-request correlation id. JWT bearer + policy-based roles.
+  TravelRequests, ItineraryCalendar, Accommodation, AiGeneration, Subscription,
+  DynamicConfig, SharedKernel; cross-module reads via `Modules/<Module>/Contracts/`.
+  Unit-of-Work + Repository over EF Core (two DbContexts). Mapster for mapping. Serilog
+  with per-request correlation id. JWT bearer + policy-based roles.
 - **Async AI:** API enqueues an `AiQueuedJob` to Azure Queue Storage and returns
   `202`; the separate **AI Worker** drains the queue and generates in batches with
   retries and cross-process cancellation. Frontend polls job status.
@@ -66,8 +68,10 @@ Local debug: API `https://localhost:7071` (`/swagger`), frontend
   in `TravelPlanner/docs/AiPrompts/itinerary-agent-instructions.md`.
 - **Flight suggestions** — pre-scored candidate pool ranked by an AI agent; prompt in
   `docs/AiPrompts/flight-suggestions-agent-instructions.md`.
-- **Role-based model selection** — `gpt-4.1-mini` for Free/`User`, `gpt-5.4-mini` for
-  paid roles (maps to the subscription/credit model — see pricing-strategy skill).
+- **Role/plan-based model selection** — `gpt-4.1-mini` for Free/`User`, `gpt-5.4-mini`
+  for premium plans/paid roles. The Subscription module's entitlement engine
+  (`ISubscriptionService.ResolveModelForUser` via `AiModelSettings`) picks the more
+  capable of the plan tier and the user's role — see pricing-strategy skill.
 - **Grouped experiences** — pre-booked/sourced experiences persisted on the travel
   request (`TravelRequestExperience` + segments) are reserved in the prompt and
   materialised verbatim into linked `ItineraryExperience` blocks by the worker
@@ -90,6 +94,19 @@ Local debug: API `https://localhost:7071` (`/swagger`), frontend
 Bundled package (merchant + commission) · AI features by subscription with credit
 metering · quick-search via affiliate/referral. Details in the `pricing-strategy`
 skill.
+
+**Implemented (payment-free):** a full subscription + entitlements system — annual
+tiers Free/Plus/Pro/Ultra + per-trip **Trip Pass** (unlocked by booking with us),
+stored in DynamicConfig (`SubscriptionPlanType`) + main DB (`UserSubscription`,
+`TripEntitlement`, `FeatureUsageLog`). AI itinerary generation is gated by a
+hierarchical check (Trip Pass → subscription: per-trip generations + distinct-trips-
+per-year) returning **HTTP 402** with an upgrade payload; flight suggestions are a
+soft-gated plan feature. Upgrade + booking are **simulated** today
+(`POST /api/subscription/change`, `.../trips/{id}/unlock`) — the exact seams a future
+Stripe (merchant-of-record) webhook + real checkout will drive with zero rework.
+A daily `SubscriptionMaintenanceJob` rolls annual periods forward (resetting
+allowances) and prunes old usage. Plan catalog is seeded via a tracked MERGE; the
+living plan is `PRICING_IMPLEMENTATION_PLAN.md`.
 
 ## Reference (deep docs)
 - Cross-repo map: `.github/copilot-instructions.md`; agent: `.github/agents/`;

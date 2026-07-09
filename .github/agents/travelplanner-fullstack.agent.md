@@ -71,6 +71,10 @@ is not itself a git repo; commit/build/lint each side in its own folder.
 - [ui-ux-frontend](../skills/ui-ux-frontend/SKILL.md) — the UI/UX standard:
   the chosen component library (Mantine), accessibility (WCAG/ARIA), Nielsen
   usability heuristics, design tokens, and the incremental migration plan.
+- [responsive-mobile-ui](../skills/responsive-mobile-ui/SKILL.md) — make any
+  screen look great + feel smooth on phones/tablets: the app's breakpoints, the
+  slide-in nav drawer, fluid grids, touch targets, dvh/safe-area, reduced-motion,
+  and the per-feature responsive checklist.
 - [app-lifecycle](../skills/app-lifecycle/SKILL.md) — **start/stop the stack in
   debug** from chat (API + AI worker + frontend), ports, health URLs, cleanup.
 - [azure-resources](../skills/azure-resources/SKILL.md) — manage the Azure AI

@@ -23,9 +23,10 @@ Use the **TravelPlanner Full-Stack** agent ([.github/agents/travelplanner-fullst
 for any backend, frontend, full-stack, cloud, or product task. It bundles
 on-demand skills under [.github/skills/](.github/skills): `fullstack-architecture`,
 `backend-dotnet`, `frontend-react`, `ef-migrations`, `ai-pipeline`,
-`background-jobs`, `scalability-concurrency`, `ui-ux-frontend`, `app-lifecycle`,
-`azure-resources`, `product-strategy`, `pricing-strategy`, `feature-workflow`,
-`localization`, `workspace-init`, and `docs-maintenance`.
+`background-jobs`, `scalability-concurrency`, `ui-ux-frontend`,
+`responsive-mobile-ui`, `app-lifecycle`, `azure-resources`, `product-strategy`,
+`pricing-strategy`, `feature-workflow`, `localization`, `workspace-init`, and
+`docs-maintenance`.
 
 ## Living overview & self-improvement
 
