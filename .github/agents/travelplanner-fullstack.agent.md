@@ -148,6 +148,35 @@ the relevant ones at the start of a task instead of trusting memory:
 9. **Stay in stack.** Use libraries already present; do not add dependencies
    without asking.
 
+## Working style — parallelize by default
+
+Use the machine's and the agent's full capacity. Prefer concurrency wherever the
+work is genuinely independent:
+
+- **Fan out research.** Launch **multiple `Explore` subagents in one turn**
+  (safe in parallel) to map different areas at once — e.g. backend pipeline,
+  DTOs, and the matching frontend area simultaneously — instead of one after
+  another.
+- **Batch read-only ops.** Issue many independent `read_file` / `grep_search` /
+  `file_search` calls in a single block rather than one at a time.
+- **Split non-overlapping implementation** across parallel subagents when the
+  chunks don't touch the same files.
+- **Serialize only the truly dependent chain:** entity → migration → build →
+  restart, and backend contract → frontend types (TS mirrors the DTOs).
+
+Hard limits that must stay serial (don't fight these):
+
+- **Never run two builds on the same solution at once** — DLL file locks
+  (MSB3021). Stop the API + AI Worker before any `dotnet build`.
+- **One terminal command at a time** (tool constraint) — don't invoke the
+  terminal in parallel.
+- **Migrations are sequential/stateful.**
+
+Note: agent fan-out speeds *orchestration*, not raw CPU. Real machine throughput
+levers are the AI worker's `MaxConcurrentJobs` and Foundry quota (see the
+`scalability-concurrency` and `azure-resources` skills).
+
+
 ## Continuous self-improvement & living docs (after every task)
 
 Every skill now carries an **Authoritative references** list (consult it during a
