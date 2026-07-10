@@ -22,7 +22,7 @@ Local debug: API `https://localhost:7071` (`/swagger`), frontend
 ## Features (short)
 | Feature | What it does | Status |
 |---------|--------------|--------|
-| Auth & users | Register/login, JWT + refresh, email confirmation, 6-role hierarchy | done |
+| Auth & users | Register/login, JWT (15-min access + rotating refresh, remember-me), email **and phone (SMS OTP)** verification, forgot/reset password, cross-channel change email/phone, GDPR consent + data export + account deletion, login lockout + password policy, 6-role hierarchy | done |
 | Travel requests | Create trip brief (destination, dates, people, preferences); quick-search; public code lookup | done |
 | AI itinerary generation | Async AI builds a day-by-day calendar (days/blocks) from the request | done |
 | Itinerary calendar | View/edit days & blocks; manual fill | done |
